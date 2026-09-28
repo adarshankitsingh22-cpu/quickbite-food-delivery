@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuickBite | On-Demand Food Delivery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#fff1f0', 100: '#ffe1df', 500: '#ff4742', 600: '#e03934', 700: '#c52823' }
+          }
+        }
+      }
+    }
+  </style>
+</head>
+<body class="bg-white text-gray-800 min-h-screen flex flex-col antialiased">
+
+  <header class="bg-white border-b border-gray-100 sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-brand-500 flex items-center justify-center text-white font-black">QB</div>
+        <span class="text-xl font-black">QuickBite</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/track.html" class="text-sm font-semibold text-gray-600 hover:text-brand-500">Track Order</a>
+        <a href="/admin.html" class="text-sm font-semibold text-gray-600 hover:text-brand-500">Admin</a>
+        <button id="cart-btn" class="relative p-2 text-gray-600 hover:text-brand-500">
+          <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+          <span id="cart-count" class="absolute top-0 right-0 bg-brand-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-8 flex-1 w-full space-y-8">
+    <div class="text-center space-y-2">
+      <h1 class="text-4xl font-black text-gray-900">Order Food Online</h1>
+      <p class="text-lg text-gray-500">Fast delivery • Fresh meals • Real-time tracking</p>
+    </div>
+
+    <div class="grid grid-cols-4 gap-3 border-b border-gray-200 pb-6">
+      <button class="category-btn px-4 py-2 rounded-xl font-semibold text-sm bg-brand-500 text-white" data-category="all">All</button>
+      <button class="category-btn px-4 py-2 rounded-xl font-semibold text-sm bg-gray-100 text-gray-700 hover:bg-gray-200" data-category="Burgers">Burgers</button>
+      <button class="category-btn px-4 py-2 rounded-xl font-semibold text-sm bg-gray-100 text-gray-700 hover:bg-gray-200" data-category="Pizzas">Pizzas</button>
+      <button class="category-btn px-4 py-2 rounded-xl font-semibold text-sm bg-gray-100 text-gray-700 hover:bg-gray-200" data-category="Beverages">Beverages</button>
+    </div>
+
+    <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
+      <!-- Injected via JS -->
+    </div>
+  </main>
+
+  <!-- Cart Sidebar -->
+  <div id="cart-sidebar" class="hidden fixed right-0 top-0 w-96 h-screen bg-white border-l border-gray-200 z-50 flex flex-col shadow-2xl">
+    <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+      <h2 class="font-bold text-lg">Your Cart</h2>
+      <button id="close-cart" class="p-1 hover:bg-gray-100 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-3"><!-- Injected --></div>
+    <div class="p-6 border-t border-gray-200 space-y-3">
+      <div class="space-y-2 text-sm">
+        <div class="flex justify-between"><span>Subtotal</span><span id="cart-subtotal">$0.00</span></div>
+        <div class="flex justify-between"><span>Delivery</span><span id="cart-delivery">$5.00</span></div>
+        <div class="flex justify-between"><span>Tax</span><span id="cart-tax">$0.00</span></div>
+        <div class="flex justify-between font-bold text-base border-t pt-2"><span>Total</span><span id="cart-total">$5.00</span></div>
+      </div>
+      <button id="checkout-btn" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl">Proceed to Checkout</button>
+    </div>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div id="checkout-modal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4">
+      <h3 class="font-bold text-lg">Delivery Details</h3>
+      <input type="text" id="checkout-name" placeholder="Full Name" class="w-full px-4 py-2 border border-gray-200 rounded-xl">
+      <input type="tel" id="checkout-phone" placeholder="Phone Number" class="w-full px-4 py-2 border border-gray-200 rounded-xl">
+      <textarea id="checkout-address" placeholder="Delivery Address" rows="3" class="w-full px-4 py-2 border border-gray-200 rounded-xl"></textarea>
+      <select id="checkout-payment" class="w-full px-4 py-2 border border-gray-200 rounded-xl bg-white">
+        <option value="Credit Card">Credit Card</option>
+        <option value="Debit Card">Debit Card</option>
+        <option value="Cash">Cash on Delivery</option>
+      </select>
+      <div class="flex gap-2">
+        <button id="cancel-checkout" class="flex-1 px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50">Cancel</button>
+        <button id="place-order-btn" class="flex-1 px-4 py-2 bg-brand-500 text-white rounded-xl hover:bg-brand-600">Place Order</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/index.js"></script>
+</body>
+</html>
