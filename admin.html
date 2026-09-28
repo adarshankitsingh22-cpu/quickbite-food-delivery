@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kitchen & Dispatch Admin | QuickBite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#fff1f0', 100: '#ffe1df', 500: '#ff4742', 600: '#e03934', 700: '#c52823' }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col antialiased">
+
+  <header class="bg-gray-900 text-white sticky top-0 z-40 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 h-18 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-6">
+        <a href="/" class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-brand-500 flex items-center justify-center text-white shadow-md">
+            <i data-lucide="chef-hat" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <span class="text-lg font-black tracking-tight text-white">QuickBite <span class="text-brand-500 font-bold">Kitchen Ops</span></span>
+            <span class="text-[10px] text-gray-400 block -mt-0.5">Real-Time Kitchen Dispatch</span>
+          </div>
+        </a>
+        <div class="hidden sm:flex items-center gap-2 bg-gray-800/80 px-3 py-1.5 rounded-full border border-gray-700 text-xs text-gray-300">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Live WebSocket Connected</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="export-csv-btn" class="text-xs font-semibold px-3 py-2 rounded-xl text-gray-300 bg-gray-800 hover:bg-gray-700 hover:text-white transition flex items-center gap-1.5">
+          <i data-lucide="download" class="w-4 h-4 text-emerald-400"></i>
+          <span class="hidden sm:inline">Export CSV</span>
+        </button>
+        <a href="/driver.html" class="text-xs font-semibold px-3 py-2 rounded-xl text-amber-300 bg-amber-950/60 hover:bg-amber-900 border border-amber-700/50 transition flex items-center gap-1.5">
+          <i data-lucide="bike" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Driver App</span>
+        </a>
+        <a href="/" class="text-xs font-semibold px-3 py-2 rounded-xl text-gray-300 bg-gray-800 hover:bg-gray-700 hover:text-white transition flex items-center gap-1.5">
+          <i data-lucide="store" class="w-4 h-4 text-brand-500"></i>
+          <span>Storefront</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-gray-400">Total Orders</div>
+        <div id="stat-total-orders" class="text-2xl font-extrabold text-gray-900 mt-1">0</div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-500">Active In-Kitchen</div>
+        <div id="stat-active-orders" class="text-2xl font-extrabold text-amber-600 mt-1">0</div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-500">Delivered Fresh</div>
+        <div id="stat-delivered-orders" class="text-2xl font-extrabold text-emerald-600 mt-1">0</div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm">
+        <div class="text-xs font-bold uppercase tracking-wider text-brand-500">Today's Revenue</div>
+        <div id="stat-revenue" class="text-2xl font-extrabold text-gray-900 mt-1">₹0</div>
+      </div>
+    </div>
+
+    <div class="flex border-b border-gray-200 gap-6 text-sm font-semibold">
+      <button id="tab-orders-btn" class="pb-3 text-brand-500 border-b-2 border-brand-500 flex items-center gap-2 transition">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+        <span>Live Order Dispatch</span>
+      </button>
+      <button id="tab-menu-btn" class="pb-3 text-gray-500 hover:text-gray-900 flex items-center gap-2 transition">
+        <i data-lucide="utensils" class="w-4 h-4"></i>
+        <span>Menu Management</span>
+      </button>
+    </div>
+
+    <div id="view-orders" class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-gray-50/80 rounded-2xl p-4 border border-gray-200 flex flex-col">
+          <div class="flex items-center justify-between pb-3 border-b border-gray-200 mb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+              <h3 class="font-bold text-xs uppercase tracking-wider text-gray-700">New Orders</h3>
+            </div>
+            <span id="badge-placed-count" class="bg-white text-gray-800 text-xs font-bold px-2 py-0.5 rounded-full shadow-xs">0</span>
+          </div>
+          <div id="col-placed" class="space-y-3 flex-1 overflow-y-auto min-h-[300px]"></div>
+        </div>
+
+        <div class="bg-gray-50/80 rounded-2xl p-4 border border-gray-200 flex flex-col">
+          <div class="flex items-center justify-between pb-3 border-b border-gray-200 mb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+              <h3 class="font-bold text-xs uppercase tracking-wider text-gray-700">In Kitchen</h3>
+            </div>
+            <span id="badge-prep-count" class="bg-white text-gray-800 text-xs font-bold px-2 py-0.5 rounded-full shadow-xs">0</span>
+          </div>
+          <div id="col-preparing" class="space-y-3 flex-1 overflow-y-auto min-h-[300px]"></div>
+        </div>
+
+        <div class="bg-gray-50/80 rounded-2xl p-4 border border-gray-200 flex flex-col">
+          <div class="flex items-center justify-between pb-3 border-b border-gray-200 mb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+              <h3 class="font-bold text-xs uppercase tracking-wider text-gray-700">Out for Delivery</h3>
+            </div>
+            <span id="badge-dispatch-count" class="bg-white text-gray-800 text-xs font-bold px-2 py-0.5 rounded-full shadow-xs">0</span>
+          </div>
+          <div id="col-dispatched" class="space-y-3 flex-1 overflow-y-auto min-h-[300px]"></div>
+        </div>
+
+        <div class="bg-gray-50/80 rounded-2xl p-4 border border-gray-200 flex flex-col">
+          <div class="flex items-center justify-between pb-3 border-b border-gray-200 mb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <h3 class="font-bold text-xs uppercase tracking-wider text-gray-700">Completed</h3>
+            </div>
+            <span id="badge-delivered-count" class="bg-white text-gray-800 text-xs font-bold px-2 py-0.5 rounded-full shadow-xs">0</span>
+          </div>
+          <div id="col-delivered" class="space-y-3 flex-1 overflow-y-auto min-h-[300px]"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-menu" class="hidden bg-white rounded-3xl p-6 border border-gray-200 shadow-sm space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-bold text-gray-900">Menu Management</h3>
+          <p class="text-xs text-gray-500">Toggle items on/off or add new dishes.</p>
+        </div>
+        <button id="open-add-dish-modal" class="bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs py-2 px-4 rounded-xl shadow-sm transition flex items-center gap-1.5">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>Add New Dish</span>
+        </button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="text-xs uppercase bg-gray-50 text-gray-500 border-y border-gray-200">
+            <tr>
+              <th class="py-3 px-4">Item</th>
+              <th class="py-3 px-4">Category</th>
+              <th class="py-3 px-4">Price</th>
+              <th class="py-3 px-4">Status</th>
+              <th class="py-3 px-4 text-center">Toggle</th>
+              <th class="py-3 px-4 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody id="admin-menu-table-body" class="divide-y divide-gray-100"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <div id="add-dish-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+      <div class="p-5 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+        <h3 class="font-bold text-base text-gray-900">Add New Dish</h3>
+        <button id="close-add-dish-modal" class="p-1 rounded-full hover:bg-gray-200 text-gray-500">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="add-dish-form" class="p-6 overflow-y-auto space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Dish Name</label>
+          <input type="text" id="new-dish-name" required placeholder="e.g. Smoky BBQ Ribs Burger" class="w-full px-3 py-2 border border-gray-200 rounded-xl focus:border-brand-500">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Category</label>
+            <select id="new-dish-category" class="w-full px-3 py-2 border border-gray-200 rounded-xl focus:border-brand-500 bg-white">
+              <option value="Burgers">Burgers</option>
+              <option value="Pizzas">Pizzas</option>
+              <option value="Bowls">Bowls</option>
+              <option value="Beverages">Beverages</option>
+              <option value="Desserts">Desserts</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Price (₹)</label>
+            <input type="number" step="1" id="new-dish-price" required placeholder="249" class="w-full px-3 py-2 border border-gray-200 rounded-xl focus:border-brand-500">
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Description</label>
+          <textarea id="new-dish-desc" rows="2" required placeholder="Short description..." class="w-full px-3 py-2 border border-gray-200 rounded-xl focus:border-brand-500"></textarea>
+        </div>
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Image URL</label>
+          <input type="url" id="new-dish-img" required value="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80" class="w-full px-3 py-2 border border-gray-200 rounded-xl focus:border-brand-500">
+        </div>
+        <div class="flex items-center gap-4 pt-1">
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="checkbox" id="new-dish-veg" class="rounded text-green-600">
+            <span>Vegetarian</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="checkbox" id="new-dish-spicy" class="rounded text-red-600">
+            <span>Spicy</span>
+          </label>
+        </div>
+        <button type="submit" class="w-full mt-3 bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl shadow-md transition text-sm">
+          Save & Publish Dish
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>
