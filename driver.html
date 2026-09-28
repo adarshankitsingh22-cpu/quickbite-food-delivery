@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Driver Partner Portal | QuickBite Courier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#fff1f0', 100: '#ffe1df', 500: '#ff4742', 600: '#e03934', 700: '#c52823' }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col antialiased">
+
+  <header class="bg-gray-900 text-white sticky top-0 z-40 shadow-md">
+    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-amber-500 text-gray-950 flex items-center justify-center font-black shadow-md">
+          <i data-lucide="bike" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-extrabold text-base tracking-tight">QuickBite <span class="text-amber-400">Driver</span></span>
+            <span id="fleet-status-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">ONLINE</span>
+          </div>
+          <span class="text-xs text-gray-400">Rider: Alex Walker (QB-782)</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="driver-status-toggle" checked class="sr-only peer">
+          <div class="w-12 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+        </label>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
+
+    <div class="grid grid-cols-3 gap-3">
+      <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm text-center">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-gray-400">Shift Earnings</div>
+        <div id="stat-earnings" class="text-xl sm:text-2xl font-black text-emerald-600 mt-1">$82.50</div>
+      </div>
+      <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm text-center">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-gray-400">Trips Done</div>
+        <div id="stat-trips" class="text-xl sm:text-2xl font-black text-gray-900 mt-1">5</div>
+      </div>
+      <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm text-center">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-gray-400">Driver Rating</div>
+        <div class="text-xl sm:text-2xl font-black text-amber-500 mt-1 flex items-center justify-center gap-1">
+          <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+          <span>4.9</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="active-trip-section" class="hidden">
+      <div class="bg-white rounded-3xl p-6 border-2 border-brand-500 shadow-xl space-y-5">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-brand-500 animate-ping"></span>
+            <span class="font-extrabold text-sm uppercase tracking-wider text-brand-600">Active Delivery Task</span>
+          </div>
+          <span id="active-order-id" class="font-mono font-bold text-xs bg-gray-100 px-3 py-1 rounded-lg">QB-0000</span>
+        </div>
+
+        <div class="space-y-4">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+              <i data-lucide="utensils" class="w-4 h-4"></i>
+            </div>
+            <div class="flex-1">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Step 1: Pickup</div>
+              <div class="font-bold text-sm text-gray-900">QuickBite Central Kitchen</div>
+              <div class="text-xs text-gray-500">104 Downtown Blvd, Station 2</div>
+            </div>
+          </div>
+
+          <div class="ml-4 pl-0.5 border-l-2 border-dashed border-gray-300 h-4"></div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 mt-0.5">
+              <i data-lucide="map-pin" class="w-4 h-4"></i>
+            </div>
+            <div class="flex-1">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-blue-600">Step 2: Drop-off</div>
+              <div id="active-customer-name" class="font-bold text-sm text-gray-900">Customer</div>
+              <div id="active-customer-address" class="text-xs text-gray-500">Customer Address</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 rounded-2xl p-3.5 border border-gray-200/70 text-xs space-y-1.5">
+          <div class="font-bold text-gray-700 mb-1">Items to Transport:</div>
+          <div id="active-items-list" class="space-y-1 text-gray-600"></div>
+        </div>
+
+        <div class="space-y-2 pt-2">
+          <button id="btn-driver-pickup" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 px-4 rounded-2xl shadow-lg shadow-brand-500/30 transition flex items-center justify-center gap-2">
+            <i data-lucide="package-check" class="w-5 h-5"></i>
+            <span>Confirm Order Pickup (Start Trip)</span>
+          </button>
+
+          <div id="driver-dispatched-controls" class="hidden space-y-2">
+            <button id="btn-driver-gps-step" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-2xl transition flex items-center justify-center gap-2 shadow-sm">
+              <i data-lucide="navigation" class="w-4 h-4"></i>
+              <span>Push GPS Live Location (+20% Route)</span>
+            </button>
+            <button id="btn-driver-deliver" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-2xl shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2">
+              <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+              <span>Mark as Delivered & Collect $14.50</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-bold text-gray-900">Available Deliveries Near You</h2>
+          <p class="text-xs text-gray-500">Accept an order to begin pickup and start your delivery route.</p>
+        </div>
+        <button id="refresh-deliveries-btn" class="p-2 rounded-xl hover:bg-gray-100 text-gray-500 transition">
+          <i data-lucide="rotate-cw" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div id="driver-orders-feed" class="space-y-3"></div>
+
+      <div id="driver-feed-empty" class="hidden text-center py-12 text-gray-400">
+        <i data-lucide="check-check" class="w-12 h-12 stroke-1 mx-auto mb-2 text-gray-300"></i>
+        <p class="text-sm font-bold text-gray-700">All caught up!</p>
+        <p class="text-xs text-gray-400 mt-0.5">No pending food deliveries waiting for rider assignment.</p>
+      </div>
+    </div>
+
+    <div class="text-center pt-2 flex items-center justify-center gap-4 text-xs font-semibold text-gray-500">
+      <a href="/" class="hover:text-brand-500 flex items-center gap-1">
+        <i data-lucide="store" class="w-3.5 h-3.5"></i>
+        <span>Customer Store</span>
+      </a>
+      <span>•</span>
+      <a href="/admin.html" class="hover:text-brand-500 flex items-center gap-1">
+        <i data-lucide="chef-hat" class="w-3.5 h-3.5"></i>
+        <span>Kitchen Dashboard</span>
+      </a>
+      <span>•</span>
+      <a href="/track.html" class="hover:text-brand-500 flex items-center gap-1">
+        <i data-lucide="map" class="w-3.5 h-3.5"></i>
+        <span>Tracking Map</span>
+      </a>
+    </div>
+
+  </main>
+
+  <script src="/js/driver.js"></script>
+</body>
+</html>
